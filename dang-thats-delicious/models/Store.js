@@ -47,6 +47,8 @@ const stroreShema = new mongoose.Schema({
     }
 });
 
+stroreShema.index({ location: '2dsphere'});
+
 stroreShema.pre('save', async function(next){
     if(!this.isModified('name')) {
         next();//skip it
