@@ -54,20 +54,21 @@ exports.resize = async(req, res, next) =>{
 };
 //-------------------------------------------------------------------
 
-exports.createStore = async(req, res) =>{
+exports.createStore = async(req, res) => {
 	req.body.author = req.user._id;
     const store = await (new Store(req.body)).save();
 	req.flash('success', `Successfully Created ${store.name}. Care to leave a review?`);
-	res.redirect(`/stores/${store.slug}`);
+	res.redirect(`/store/${store.slug}`);
 };
 
 exports.getStores = async(req, res) =>{
+	//query the database for a list of all stores
 	const stores = await Store.find();
 	//console.log(stores);
 	res.render('stores', {title: 'stores', stores });
 };
 
-const confirmowner = (store, user) => {
+const confirmOwner = (store, user) => {
 	if(!store.author.equals(user._id)) {
 		throw Error ('You must own a store in order to edit!');
 	}
@@ -76,7 +77,7 @@ exports.editStore = async(req, res) =>{
 	// find the store give id
 	const store = await Store.findOne({_id: req.params.id});
 	// confirm they are 
-	confirmowner(store, req.user);
+	confirmOwner(store, req.user);
 	//todo
 	// render out the edit form user can update 
 
@@ -153,17 +154,16 @@ exports.mapStores =  async (req, res) =>{
 	const q = {
 	location: {
 		$near: {
-			$geometry:{
-				type: 'Pont',
+			$geometry: {
+				type: 'Point',
 				coordinates
 			},
-			$maxDistance: 10000 //km	
+			$maxDistance: 10000 //10km	
 			}
 		}
-
-	}
-	const stores = await Store.find(q).select('slug name description location'
-	).limit(5);
+	};
+	const stores = await Store.find(q).select('slug name description location photo'
+	).limit(10);
 	res.json(stores);
 };
 

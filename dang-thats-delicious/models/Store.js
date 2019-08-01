@@ -47,6 +47,11 @@ const stroreShema = new mongoose.Schema({
     }
 });
 
+stroreShema.index({
+    name: 'text',
+    description: 'text'
+});
+
 stroreShema.index({ location: '2dsphere'});
 
 stroreShema.pre('save', async function(next){
@@ -65,10 +70,7 @@ stroreShema.pre('save', async function(next){
     next();
 });
 
-stroreShema.index({
-    name: 'text',
-    description: 'text'
-});
+
 stroreShema.statics.getTagsList = function() {
     return this.aggregate([
         {$unwind: '$tags'},
