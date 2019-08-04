@@ -63,10 +63,28 @@ exports.createStore = async(req, res) => {
 };
 
 exports.getStores = async(req, res) =>{
+	const page = req.params.page || 1;
+	const limit = 4;
+	const skip = (page * limit) - limit;
 	//query the database for a list of all stores
-	const stores = await Store.find();
-	//console.log(stores);
-	res.render('stores', {title: 'stores', stores });
+	const storesPromise=  Store
+	.find()
+	.skip(skip)
+	.limit(limit)
+	.sort({ created: 'desc'});
+
+	const countPromise = Store.count();
+
+	const [stores, count] = await Promise.all([storesPromise, countPromise]);
+
+	const pages = Math.ceil(count / limit);
+	if(!stores.length && skip){
+		req.flash('info', `Hey! You asked for the page ${page}. but that doesn't exits.. so 
+		i put you on page ${pages}`);
+		res.redirect(`/stores/page/${pages}`);
+		return;
+	}
+	res.render('stores', {title: 'stores', stores, page, pages, count});
 };
 
 const confirmOwner = (store, user) => {
@@ -195,4 +213,11 @@ exports.getHearts = async(req, res) => {
 		}
 	});
 	res.render('stores', {title: 'Hearted Stores', stores});
+}
+
+//getTopStores fn
+
+exports.getTopStores = async(req, res) => {
+	const stores = await Store.getTopStores();
+	res.render('topStores', { stores, title: '✮ top Stores!'});
 }

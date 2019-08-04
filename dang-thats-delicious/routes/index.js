@@ -10,6 +10,7 @@ const {catchErrors } = require('../handlers/errorHandlers');
 //getStores function-------------------------------------------------
 router.get('/',catchErrors(storeController.getStores));
 router.get('/stores',catchErrors(storeController.getStores));
+router.get('/stores/page/:page',catchErrors(storeController.getStores));
 router.get('/add', authController.isLoggedIn,
                    storeController.addStore);
 //create function----------------------------------------------------
@@ -68,7 +69,7 @@ catchErrors(authController.update));
 //=====================================================================
 router.post('/reviews/:id', authController.isLoggedIn, 
 catchErrors(reviewController.addReviews))
-
+router.get('/top', catchErrors(storeController.getTopStores))
 /*
 API
 */
@@ -88,7 +89,5 @@ router.get('/hearts/', authController.isLoggedIn,
  catchErrors(storeController.getHearts))
 
  //====================================================================
-
- 
 
 module.exports = router;
